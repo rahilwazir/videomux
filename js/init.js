@@ -6,7 +6,7 @@
  */
 
 var VideoMux = (function() {
-    var VIDEO_SERVICE = ['youtube', 'dailytion'];
+    var YT_SERVICE = true;
 
     var Defaults = {
         vimeo: {
@@ -59,7 +59,9 @@ var VideoMux = (function() {
             $(document).on('submit', 'form[name="video-inputs"]', function (e) {
                 e.preventDefault()
 
-                var data = $(this).serializeArray();
+                var data = $(this).serializeArray(),
+                    vidID, StartTime, EndTime;
+
                 $.each(data, function (e, x) {
                     // process video url
                     if ( x.name.indexOf('video') !== -1 ) {
@@ -70,21 +72,9 @@ var VideoMux = (function() {
                             if ( YT_ID || DM_ID ) {
                                 $('input[name=' + x.name + ']').removeClass('error');
 
-                                if ( YT_ID ) {
-                                    self.initYT({
-                                        elem: '#' + Defaults.videoOptions.mainVideoElem,
-                                        ID: new String(YT_ID).valueOf(),
-                                        width: Defaults.videoOptions.mainWidth,
-                                        height: Defaults.videoOptions.mainHeight
-                                    });
-                                } else if ( DM_ID ) {
-                                    self.initDM({
-                                        elem: Defaults.videoOptions.mainVideoElem,
-                                        ID: new String(DM_ID).valueOf(),
-                                        width: Defaults.videoOptions.mainWidth,
-                                        height: Defaults.videoOptions.mainHeight
-                                    });
-                                }
+                                if ( YT_ID ) vidID = YT_ID;;
+
+                                if ( DM_ID ) vidID = DM_ID, YT_SERVICE = false;
 
                             } else {
                                 $('input[name=' + x.name + ']').addClass('error');
@@ -95,10 +85,54 @@ var VideoMux = (function() {
                         }
                     }
 
-                    // process start/end time                    
-                    if ( x.name.indexOf('srttime') !== -1 || x.name.indexOf('endtime') !== -1 ) {
+                    // process start time
+                    if ( x.name.indexOf('strttime') !== -1 ) {
+                        if ( $.trim(x.value) !== '' ) {
+                            var strtTime = parseInt(x.value);
 
+                            if ( !isNaN(strtTime) ) {
+                                StartTime = strtTime;
+                                $('input[name=' + x.name + ']').removeClass('error');
+                            } else {
+                                $('input[name=' + x.name + ']').addClass('error');
+                            }
+                        }
                     }
+
+                    // process end time
+                    if ( x.name.indexOf('endtime') !== -1 ) {
+                        if ( $.trim(x.value) !== '' ) {
+                            var endTime = parseInt(x.value);
+
+                            if ( !isNaN(endTime) ) {
+                                if ( StartTime < endTime ) EndTime = endTime;
+
+                                $('input[name=' + x.name + ']').removeClass('error');
+                            } else {
+                                $('input[name=' + x.name + ']').addClass('error');
+                            }
+
+                        }
+                    }
+
+                    if ( vidID ) {
+
+                        var finalSetup = {
+                            elem: Defaults.videoOptions.mainVideoElem,
+                            ID: new String(vidID).valueOf(),
+                            start: (StartTime) ? StartTime : 0,
+                            stop: (EndTime) ? EndTime : -1,
+                            width: Defaults.videoOptions.mainWidth,
+                            height: Defaults.videoOptions.mainHeight
+                        };
+
+                        if ( YT_SERVICE ) {
+                            self.initYT(finalSetup);
+                        } else if ( !YT_SERVICE ) {
+                            self.initDM((finalSetup));
+                        }
+                    }
+
                 });
             });
 
@@ -121,11 +155,11 @@ var VideoMux = (function() {
         initYT: function (obj) {
 
             var params = { allowScriptAccess: "always" }, atts = { id: 'YT_VID' },
-                url = 'https://www.youtube.com/v/' + obj.ID + '?enablejsapi=1&playerapiid=ytplayer&version=3&start=0&autoplay=1';
+                url = 'https://www.youtube.com/v/' + obj.ID + '?enablejsapi=1&playerapiid=ytplayer&version=3&start=' + obj.start + '&autoplay=1&' + ((obj.stop > obj.start) ? 'end=' + obj.stop : '');
 
             // swfobject.embedSWF(url, obj.elem, '640', '480', '8', null, null, params, atts);
 
-            $( obj.elem ).html('<iframe width="' + obj.width + '" height="' + obj.height + '" src="' + url + '" frameborder="0" allowfullscreen id="video"></iframe>');
+            $( '#' + obj.elem ).html('<iframe width="' + obj.width + '" height="' + obj.height + '" src="' + url + '" frameborder="0" allowfullscreen id="' + obj.elem + '"></iframe>');
 
             /*$(document).on('click', '.onclick', function(e) {
              e.preventDefault();
@@ -156,7 +190,7 @@ var VideoMux = (function() {
                 params: {
                     autplay: 1,
                     html: 0
-                },
+                }
             }), playIterator = 0, stopTime = obj.stop, startTime = obj.start;
 
             $(player).on('apiready seeking timeupdate seeked play', function(e) {
@@ -168,7 +202,6 @@ var VideoMux = (function() {
                     case 'apiready':
                         player.play();
                         if (playIterator == 0) {
-                            console.log(startTime);
                             e.target.seek(startTime);
                         }
                         break;
@@ -178,6 +211,7 @@ var VideoMux = (function() {
                     case 'seeked':
                         if ( stopTime !== -1 && stopTime > 0 ) {
                             if ( currentTime >= stopTime ) {
+
                                 player.pause();
                             }
                         }
