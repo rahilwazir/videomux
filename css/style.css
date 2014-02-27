@@ -111,6 +111,7 @@ input, select {
 ----------------------------------*/
 body{
     background-image:url(../images/bg-image.jpg);
+    font-family: Helvetica, Arial, sans-serif;
 }
 .container{
     width:1024px;
@@ -164,7 +165,6 @@ body{
 }
 .form-time label{
     color:#FFFFFF;
-    float:left;
 }
 .video-time input{
     -moz-border-bottom-colors: none;
@@ -178,10 +178,12 @@ body{
     padding: 5px 18px;
     width: 640px;
 }
-.start-time{
+.start-time,
+.end-time {
     float: left;
     margin: 0 10px;
     width: 142px;
+    text-align: center;
 }
 .start-time p{
     color:#FFFFFF;
@@ -200,10 +202,6 @@ body{
     border-radius: 8px;
     border-width: 3px medium medium;
     text-align: center;
-}
-.end-time{
-    width: 142px;
-    float: left;
 }
 .end-time p{
     color:#FFFFFF;
@@ -226,14 +224,15 @@ body{
 .video-context .left-side{
     float: left;
 }
-.video-context .right-side{
+.video-context .right-side {
     background-image:url(../images/right-strip.png);
     background-repeat:repeat-y;
     width:330px;
     float:right;
 }
 .video-context .right-side .content{
-    margin: 14px 8px;
+    margin: 9px 5px;
+    display: block;
 }
 .video-context .right-side .content img{
     float:left;
@@ -243,8 +242,13 @@ body{
     color: #FFFFFF;
     float: left;
     font-size: 13px;
-    padding-bottom: 24px;
+    padding-bottom: 10px;
 
+}
+.right-side > h2 {
+    font-size: 24px;
+    color: #FFF;
+    background: none;
 }
 .video-context .right-side .content p{
     color: #FFFFFF;
@@ -327,4 +331,10 @@ body{
 }
 .error {
     border: 1px solid red !important;
+}
+.fright {
+    float: right;
+}
+.video-details {
+    width: 170px;
 }
