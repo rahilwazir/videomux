@@ -72,7 +72,7 @@ var VideoMux = (function() {
                             if ( YT_ID || DM_ID ) {
                                 $('input[name=' + x.name + ']').removeClass('error');
 
-                                if ( YT_ID ) vidID = YT_ID;;
+                                if ( YT_ID ) vidID = YT_ID, YT_SERVICE = true;
 
                                 if ( DM_ID ) vidID = DM_ID, YT_SERVICE = false;
 
@@ -159,14 +159,14 @@ var VideoMux = (function() {
 
             // swfobject.embedSWF(url, obj.elem, '640', '480', '8', null, null, params, atts);
 
-            $( '#' + obj.elem ).html('<iframe width="' + obj.width + '" height="' + obj.height + '" src="' + url + '" frameborder="0" allowfullscreen id="' + obj.elem + '"></iframe>');
+            $( '.main-vid' ).empty().append('<iframe width="' + obj.width + '" height="' + obj.height + '" src="' + url + '" frameborder="0" allowfullscreen id="' + obj.elem + '"></iframe>');
 
             /*$(document).on('click', '.onclick', function(e) {
              e.preventDefault();
              swfobject.embedSWF(url, obj.elem, '640', '480', '8', null, null, params, atts);
-             });*/
+             });
 
-            var player = new YT.Player( 'video', {
+            var player = new YT.Player( obj.elem, {
                 events: {
                     'onReady': onPlayerReady
                 }
@@ -174,7 +174,7 @@ var VideoMux = (function() {
 
             function onPlayerReady(event) {
                 // call methods on ready
-            }
+            }*/
         },
 
         initDM: function(obj) {
