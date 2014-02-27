@@ -5,25 +5,6 @@
  * @type {*}
  */
 
-//// global variable for the player
-//var player;
-//
-//// this function gets called when API is ready to use
-//function onYouTubePlayerAPIReady() {
-//    // create the global player from the specific iframe (#video)
-//    player = new YT.Player('main-video', {
-//        videoId: 'M7lc1UVf-VE',
-//        events: {
-//            // call this function when player is ready to use
-//            'onReady': onPlayerReady
-//        }
-//    });
-//}
-//
-//function onPlayerReady(event) {
-//    alert('1');
-//}
-
 var VideoMux = (function() {
     var Defaults = {
         dailyMotion: {
@@ -211,9 +192,9 @@ var VideoMux = (function() {
             var params = { allowScriptAccess: "always" }, atts = { id: 'YT_VID', name: 'YT_VID' },
                 url = 'https://www.youtube.com/v/' + obj.ID + '?enablejsapi=1&playerapiid=ytplayer&version=3&start=' + (obj.start || 0) + '&autoplay=1' + ((obj.stop > obj.start) ? '&end=' + obj.stop : '');
 
-            // $( '.main-vid' ).empty().append('<iframe width="' + obj.width + '" height="' + obj.height + '" src="' + url + '" frameborder="0" allowfullscreen id="' + obj.elem + '"></iframe>');
+            $( '.main-vid' ).empty().append('<iframe width="' + obj.width + '" height="' + obj.height + '" src="' + url + '" frameborder="0" allowfullscreen id="' + obj.elem + '"></iframe>');
 
-            var player;
+            /*var player;
 
             window.onYouTubePlayerAPIReady = function() {
                 player = new YT.Player(obj.elem, {
@@ -239,7 +220,7 @@ var VideoMux = (function() {
             var tag = document.createElement('script');
             tag.src = "https://www.youtube.com/player_api";
             var firstScriptTag = document.getElementsByTagName('script')[0];
-            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);*/
 
         },
 
