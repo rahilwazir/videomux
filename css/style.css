@@ -230,9 +230,12 @@ body{
     width:330px;
     float:right;
 }
-.video-context .right-side .content{
-    margin: 9px 5px;
+.video-context .right-side .content {
+    padding: 8px;
     display: block;
+}
+.video-context .right-side .content.current {
+    border: 1px solid #FFF;
 }
 .video-context .right-side .content img{
     float:left;
@@ -337,4 +340,7 @@ body{
 }
 .video-details {
     width: 170px;
+}
+.disable {
+    display: none;
 }

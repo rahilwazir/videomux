@@ -63,7 +63,7 @@
                         <div class="form-wrap clearfix">
                             <div class="form-control video-time">
                                 <label for="video_3">Video 3:</label><br>
-                                <input type="text" id="video_3" name="video_3" placeholder="http://example.com/videoid"></input>
+                                <input type="text" id="video_3" name="video_3" placeholder="http://example.com/videoid" value="https://www.youtube.com/watch?v=yBV6V_Qx-g0"></input>
                             </div>
 
                             <div class="form-control start-time">
@@ -121,6 +121,8 @@
                 <section class="main-vid fleft">
                     <div id="main-video">
                         <img src="images/video.jpg" alt=""/>
+                        <div id="YT_player" class="disable"></div>
+                        <div id="DM_player" class="disable"></div>
                     </div>
                 </section>
                 <div class="right-side">
@@ -158,12 +160,8 @@
 
     </footer>
 
-    <!--<div id="YT_player"></div> <a href="#" class="onclick">Click me</a>
-    <div id="DM_player"></div>-->
-
     <script type="text/javascript" src="js/swfobject.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-    <script src="https://www.youtube.com/iframe_api"></script>
     <script src="https://api.dmcdn.net/all.js"></script>
     <script src="js/init.js"></script>
 </body>

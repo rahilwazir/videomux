@@ -8,11 +8,12 @@
 var VideoMux = (function() {
     var Defaults = {
         dailyMotion: {
-            apiKey: '4aceae9bfc754d138c05'
+            apiKey: '4aceae9bfc754d138c05',
+            elem: 'DM_player'
         },
 
         youTube: {
-
+            elem: 'YT_player'
         },
 
         videoOptions: {
@@ -20,7 +21,9 @@ var VideoMux = (function() {
             mainHeight: '403',
             mainVideoElem: 'main-video',
             videoIndex: 0,
-            totalVideosLength: 0
+            totalVideosLength: 0,
+            YT_CALLS: 0,
+            DM_CALLS: 0
         }
     };
 
@@ -38,13 +41,24 @@ var VideoMux = (function() {
             extract_DM_ID: function getDailyMotionId(value) {
                 var m = value.match(/^.+dailymotion.com\/((video|hub)\/([^_]+))?[^#]*(#video=([^_&]+))?/);
                 return m ? m[5] || m[3] : false;
+            },
+
+            triggerNextVideo: function() {
+                if ( Defaults.videoOptions.videoIndex >= Defaults.videoOptions.totalVideosLength ) {
+                    $('.right-side .content').eq(0).trigger('click');
+                    Defaults.videoOptions.videoIndex = 0;
+                } else {
+                    Defaults.videoOptions.videoIndex++;
+                    $('.right-side .content').eq(Defaults.videoOptions.videoIndex).trigger('click');
+                }
+
             }
         },
 
         init: function() {
+
             var self = this,
                 finalSetup = {
-                    elem: Defaults.videoOptions.mainVideoElem,
                     width: Defaults.videoOptions.mainWidth,
                     height: Defaults.videoOptions.mainHeight
                 };
@@ -131,7 +145,7 @@ var VideoMux = (function() {
 
                 }); //end each loop
 
-                // console.log(startTimeData, endTimeData);
+                console.log(startTimeData, endTimeData);
 
                 $.each(videoData, function (e, x) {
                     var _index = parseInt(e, 10);
@@ -145,14 +159,24 @@ var VideoMux = (function() {
 
                         if ( x.length === 11 ) {
                             self.initYT(finalSetup);
+
+                            // Inject YouTube API script
+                            var tag = document.createElement('script');
+                            tag.src = "https://www.youtube.com/iframe_api";
+                            var firstScriptTag = document.getElementsByTagName('script')[0];
+
+                            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
                         } else if ( x.indexOf('x') === 0 ) {
                             self.initDM(finalSetup);
                         }
+
+                        $('#main-video > img').addClass('disable');
                     }
 
                     var output = '';
 
-                    output += '<a href="#" class="content clearfix">';
+                    output += '<a href="#" class="content' + ((_index === 0) ? ' current' : '') + ' clearfix">';
                     output += '<img src="images/v1.jpg" alt=""/>';
                     output += '<div class="fright video-details"><h3>Sniper Elite V2 WalkThrough.</h3>';
                     output += '<span>192 Views,</span>';
@@ -173,7 +197,6 @@ var VideoMux = (function() {
                 e.preventDefault();
 
                 Defaults.videoOptions.videoIndex = $(this).index();
-
                 finalSetup.ID = $(this).find('input[name=url]').val(),
                 finalSetup.start = $(this).find('input[name=start]').val(),
                 finalSetup.stop = $(this).find('input[name=end]').val();
@@ -183,54 +206,72 @@ var VideoMux = (function() {
                 } else if ( finalSetup.ID.indexOf('x') === 0 ) {
                     self.initDM(finalSetup);
                 }
+                console.log(finalSetup)
+                $('.content').removeClass('current').eq(Defaults.videoOptions.videoIndex).addClass('current');
             })
 
         },
 
         initYT: function (obj) {
+            var self = this, params = { allowScriptAccess: "always" }, atts = { id: 'YT_VID', name: 'YT_VID' },
+                url = 'https://www.youtube.com/embed/' + obj.ID + '?enablejsapi=1&playerapiid=ytplayer&version=3&start=' + (obj.start || 0) + '&autoplay=1' + ((obj.stop > obj.start) ? '&end=' + obj.stop : ''),
+                element = (obj.elem || Defaults.youTube.elem);
 
-            var params = { allowScriptAccess: "always" }, atts = { id: 'YT_VID', name: 'YT_VID' },
-                url = 'https://www.youtube.com/v/' + obj.ID + '?enablejsapi=1&playerapiid=ytplayer&version=3&start=' + (obj.start || 0) + '&autoplay=1' + ((obj.stop > obj.start) ? '&end=' + obj.stop : '');
+            $('#' + element).removeClass('disable');
+            $('#DM_player').addClass('disable');
 
-            $( '.main-vid' ).empty().append('<iframe width="' + obj.width + '" height="' + obj.height + '" src="' + url + '" frameborder="0" allowfullscreen id="' + obj.elem + '"></iframe>');
+//            $( '.main-vid' ).empty().append('<div id="main-video"></div>');
+//            .append('<iframe width="' + obj.width + '" height="' + obj.height + '" src="' + url + '" frameborder="0" allowfullscreen id="' + obj.elem + '"></iframe>');
 
-            /*var player;
+            window.mainPlayer;
+            if ( Defaults.videoOptions.YT_CALLS == 0 ) {
+                window.onYouTubeIframeAPIReady = function() {
+                    mainPlayer = new YT.Player(element, {
+                        videoId: obj.ID,
+                        height: obj.height,
+                        width: obj.width,
+                        playerVars: {
+                            start: (obj.start || 0),
+                            end: (obj.stop || 0),
+                            autoplay: 1
+                        },
+                        events: {
+                            'onStateChange': function(state) {
+                                switch (state.data) {
+                                    case 0:
+                                        self.utils.triggerNextVideo();
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+                        }
+                    });
+                };
+                Defaults.videoOptions.YT_CALLS++;
+            } else {
 
-            window.onYouTubePlayerAPIReady = function() {
-                player = new YT.Player(obj.elem, {
+                mainPlayer.loadVideoById({
                     videoId: obj.ID,
-                    height: obj.height,
-                    width: obj.width,
-                    playerVars: {
-                        start: (obj.start || 0),
-                        end: (obj.stop || 0),
-                        autplay: 1
-                    },
-                    events: {
-                        'onReady': onPlayerReady
-                    }
+                    startSeconds: (obj.start || 0),
+                    endSeconds: (obj.stop || 0)
                 });
             }
-
-            window.onPlayerReady = function(event) {
-                alert('1');
-            }
-
-            // Inject YouTube API script
-            var tag = document.createElement('script');
-            tag.src = "https://www.youtube.com/player_api";
-            var firstScriptTag = document.getElementsByTagName('script')[0];
-            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);*/
-
         },
 
         initDM: function(obj) {
+            var self = this,
+                element = (obj.elem || Defaults.dailyMotion.elem);
+
+            $('#YT_player').addClass('disable');
+            $('#' + element).removeClass('disable');
+
             DM.init({
                 apiKey: Defaults.dailyMotion.apiKey
 
             });
 
-            var player = DM.player(obj.elem, {
+            var player = DM.player(element, {
                 video: obj.ID,
                 width: obj.width,
                 height: obj.height,
@@ -259,13 +300,7 @@ var VideoMux = (function() {
                         if ( stopTime !== -1 && stopTime > 0 ) {
                             if ( currentTime >= stopTime ) {
                                 player.pause();
-                                if ( Defaults.videoOptions.videoIndex == Defaults.videoOptions.totalVideosLength ) {
-                                    $('.right-side .content').eq(0).trigger('click');
-                                    Defaults.videoOptions.videoIndex = 0;
-                                } else {
-                                    Defaults.videoOptions.videoIndex++;
-                                    $('.right-side .content').eq(Defaults.videoOptions.videoIndex).trigger('click');
-                                }
+                                self.utils.triggerNextVideo();
                             }
                         }
 
