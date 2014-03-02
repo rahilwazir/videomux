@@ -4,9 +4,9 @@
  * @year 2014
  * @type {*}
  */
+var VideoMux = (function(w) {
 
-var VideoMux = (function() {
-    var Defaults = {
+    Defaults = {
         dailyMotion: {
             apiKey: '4aceae9bfc754d138c05',
             elem: 'DM_player'
@@ -27,6 +27,10 @@ var VideoMux = (function() {
         }
     };
 
+    w.onYouTubeIframeAPIReady = function () {
+        w.mainPlayer = new YT.Player(Defaults.youTube.elem);
+    };
+
     return {
         utils: {
             extract_YT_ID: function (value) {
@@ -43,16 +47,25 @@ var VideoMux = (function() {
                 return m ? m[5] || m[3] : false;
             },
 
+            // improve
             triggerNextVideo: function() {
                 if ( Defaults.videoOptions.videoIndex >= Defaults.videoOptions.totalVideosLength ) {
                     $('.right-side .content').eq(0).trigger('click');
                     Defaults.videoOptions.videoIndex = 0;
                 } else {
-                    Defaults.videoOptions.videoIndex++;
                     $('.right-side .content').eq(Defaults.videoOptions.videoIndex).trigger('click');
+                    Defaults.videoOptions.videoIndex++;
                 }
 
+                console.log(Defaults.videoOptions.videoIndex,
+                    Defaults.videoOptions.totalVideosLength);
+            },
+
+            clearYTVideo: function() {
+                mainPlayer.stopVideo();
+                mainPlayer.clearVideo();
             }
+
         },
 
         init: function() {
@@ -145,8 +158,6 @@ var VideoMux = (function() {
 
                 }); //end each loop
 
-                console.log(startTimeData, endTimeData);
-
                 $.each(videoData, function (e, x) {
                     var _index = parseInt(e, 10);
 
@@ -159,13 +170,6 @@ var VideoMux = (function() {
 
                         if ( x.length === 11 ) {
                             self.initYT(finalSetup);
-
-                            // Inject YouTube API script
-                            var tag = document.createElement('script');
-                            tag.src = "https://www.youtube.com/iframe_api";
-                            var firstScriptTag = document.getElementsByTagName('script')[0];
-
-                            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
                         } else if ( x.indexOf('x') === 0 ) {
                             self.initDM(finalSetup);
@@ -201,12 +205,14 @@ var VideoMux = (function() {
                 finalSetup.start = $(this).find('input[name=start]').val(),
                 finalSetup.stop = $(this).find('input[name=end]').val();
 
+                self.utils.clearYTVideo();
+
                 if ( finalSetup.ID.length === 11 ) {
                     self.initYT(finalSetup);
                 } else if ( finalSetup.ID.indexOf('x') === 0 ) {
                     self.initDM(finalSetup);
                 }
-                console.log(finalSetup)
+
                 $('.content').removeClass('current').eq(Defaults.videoOptions.videoIndex).addClass('current');
             })
 
@@ -214,49 +220,27 @@ var VideoMux = (function() {
 
         initYT: function (obj) {
             var self = this, params = { allowScriptAccess: "always" }, atts = { id: 'YT_VID', name: 'YT_VID' },
-                url = 'https://www.youtube.com/embed/' + obj.ID + '?enablejsapi=1&playerapiid=ytplayer&version=3&start=' + (obj.start || 0) + '&autoplay=1' + ((obj.stop > obj.start) ? '&end=' + obj.stop : ''),
+                url = 'https://www.youtube.com/embed/' + obj.ID + '?enablejsapi=1&version=3&start=' + (obj.start || 0) + '&autoplay=1' + ((obj.stop > obj.start) ? '&end=' + obj.stop : ''),
                 element = (obj.elem || Defaults.youTube.elem);
 
             $('#' + element).removeClass('disable');
             $('#DM_player').addClass('disable');
 
-//            $( '.main-vid' ).empty().append('<div id="main-video"></div>');
-//            .append('<iframe width="' + obj.width + '" height="' + obj.height + '" src="' + url + '" frameborder="0" allowfullscreen id="' + obj.elem + '"></iframe>');
+            mainPlayer.loadVideoById({
+                videoId: obj.ID,
+                startSeconds: (obj.start || ''),
+                endSeconds: (obj.stop || '')
+            });
 
-            window.mainPlayer;
-            if ( Defaults.videoOptions.YT_CALLS == 0 ) {
-                window.onYouTubeIframeAPIReady = function() {
-                    mainPlayer = new YT.Player(element, {
-                        videoId: obj.ID,
-                        height: obj.height,
-                        width: obj.width,
-                        playerVars: {
-                            start: (obj.start || 0),
-                            end: (obj.stop || 0),
-                            autoplay: 1
-                        },
-                        events: {
-                            'onStateChange': function(state) {
-                                switch (state.data) {
-                                    case 0:
-                                        self.utils.triggerNextVideo();
-                                        break;
-                                    default:
-                                        break;
-                                }
-                            }
-                        }
-                    });
-                };
-                Defaults.videoOptions.YT_CALLS++;
-            } else {
-
-                mainPlayer.loadVideoById({
-                    videoId: obj.ID,
-                    startSeconds: (obj.start || 0),
-                    endSeconds: (obj.stop || 0)
-                });
-            }
+            mainPlayer.addEventListener('onStateChange', function (state) {
+                switch (state.data) {
+                    case 0:
+                        self.utils.triggerNextVideo();
+                        break;
+                    default:
+                        break;
+                }
+            });
         },
 
         initDM: function(obj) {
@@ -314,4 +298,11 @@ var VideoMux = (function() {
         }
     };
 
-})().init();
+})(window).init();
+
+// Inject YouTube API script
+var tag = document.createElement('script');
+tag.src = "https://www.youtube.com/iframe_api";
+var firstScriptTag = document.getElementsByTagName('script')[0];
+
+firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
