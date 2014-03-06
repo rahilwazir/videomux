@@ -231,22 +231,33 @@ body{
     float:right;
 }
 .video-context .right-side .content {
-    padding: 8px;
+    padding: 5px;
     display: block;
 }
 .video-context .right-side .content.current {
     border: 1px solid #FFF;
 }
-.video-context .right-side .content img{
+.video-context .right-side .content .thumbnail {
     float:left;
     margin-right: 11px;
+    width: 120px;
+    height: 90px;
+    position: relative;
+}
+.thumbnail img {
+    max-width: 100%;
+    display: block;
+}
+.duration {
+    left: 10px;
+    bottom: 0px;
+    position: absolute;
 }
 .video-context .right-side .content h3{
     color: #FFFFFF;
-    float: left;
     font-size: 13px;
     padding-bottom: 10px;
-
+    line-height: 1.2;
 }
 .right-side > h2 {
     font-size: 24px;
@@ -343,4 +354,19 @@ body{
 }
 .disable {
     display: none;
+}
+.enable {
+    display: block;
+}
+.video-context{
+    min-height: 350px;
+    position: relative;
+}
+.preloader {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('../images/preloader.gif') no-repeat 50% 50% transparent;
 }
