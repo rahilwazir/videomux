@@ -52,7 +52,7 @@ var VideoMux = (function(w, $) {
     w.triggerNextVideo = function() {
         if ( Defaults.videoOptions.videoIndex >= Defaults.videoOptions.totalVideosLength ) {
             Defaults.videoOptions.videoIndex = 0;
-            $('.right-side .content').eq(Defaults.videoOptions.videoIndex).trigger('click');
+            // $('.right-side .content').eq(Defaults.videoOptions.videoIndex).trigger('click');
         } else {
             ++Defaults.videoOptions.videoIndex;
             $('.right-side .content').eq(Defaults.videoOptions.videoIndex).trigger('click');
@@ -98,6 +98,14 @@ var VideoMux = (function(w, $) {
 
             $(document).on('submit', 'form[name="video-inputs"]', function (e) {
                 e.preventDefault();
+
+                try {
+                    w.ytplayerTarget.stopVideo();
+                    w.ytplayerTarget.clearVideo();
+                    w.dmplayer.pause();
+                } catch (e) {
+
+                }
 
                 var data = $(this).serializeArray(),
                     vidID, StartTime, EndTime, startTimeInput, endTimeInput,
