@@ -46,7 +46,7 @@ var VideoMux = (function(w, $) {
 
     w.loadVideo = function(e) {
         w.ytplayerTarget = e.target;
-        console.log(w.ytplayerTarget);
+        $(document).find('#youtube').addClass('disable');
     };
 
     w.triggerNextVideo = function() {
@@ -277,7 +277,8 @@ var VideoMux = (function(w, $) {
 
                 try {
                     w.ytplayerTarget.stopVideo();
-                    dmplayer.pause();
+                    w.ytplayerTarget.clearVideo();
+                    w.dmplayer.pause();
                 } catch (e) {
 
                 }
@@ -299,8 +300,6 @@ var VideoMux = (function(w, $) {
         },
 
         initYT: function (obj) {
-            var element = Defaults.youTube.elem;
-
             $('#youtube').removeClass('disable');
             $('#daily-motion').addClass('disable');
 
@@ -328,7 +327,7 @@ var VideoMux = (function(w, $) {
 
             });
 
-            var dmplayer = DM.player(element, {
+            w.dmplayer = DM.player(element, {
                 video: obj.ID,
                 width: obj.width,
                 height: obj.height,
