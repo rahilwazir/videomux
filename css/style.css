@@ -354,11 +354,15 @@ body{
 }
 .disable {
     display: none;
+    position: absolute;
+    left: -9999px;
 }
 .enable {
     display: block;
+    position: relative;
+    left: auto;
 }
-.video-context{
+.video-context {
     min-height: 350px;
     position: relative;
 }

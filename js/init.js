@@ -4,9 +4,10 @@
  * @year 2014
  */
 
-var ytplayer = undefined, ytplayerTarget = undefined, ytplayerTargetData = undefined;
 
 var VideoMux = (function(w, $) {
+
+    w.ytplayer = undefined, w.ytplayerTarget = undefined, w.ytplayerTargetData = undefined, w.dmplayer = undefined;
 
     Defaults = {
         dailyMotion: {
@@ -44,7 +45,8 @@ var VideoMux = (function(w, $) {
     };
 
     w.loadVideo = function(e) {
-        ytplayerTarget = e.target;
+        w.ytplayerTarget = e.target;
+        console.log(w.ytplayerTarget);
     };
 
     w.triggerNextVideo = function() {
@@ -224,8 +226,6 @@ var VideoMux = (function(w, $) {
                                         } else if ( x.indexOf('x') === 0 ) {
                                             self.initDM(finalSetup);
                                         }
-
-                                        $('#main-video > img').addClass('disable');
                                     }
 
                                     var output = '';
@@ -259,15 +259,14 @@ var VideoMux = (function(w, $) {
                                     $('.right-side').append(output);
                                 });
 
-
                             } catch(e) {
                                 console.log(e + ', Please try again.'); //error in the above string(in this case,yes)!
                             }
 
                             Defaults.videoOptions.totalVideosLength = $('.right-side .content').length - 1;
 
-                            $('.preloader').addClass('disable');
-                            $('.video-context').children(':not(.preloader)').removeClass('disable');
+                            $('.video-context').children().removeClass('disable').addClass('enable');
+                            $('.preloader').removeClass('enable').addClass('disable');
                         }
                     }
                 }); // end of ajax
@@ -275,6 +274,13 @@ var VideoMux = (function(w, $) {
 
             $(document).on('click', '.content', function(e) {
                 e.preventDefault();
+
+                try {
+                    w.ytplayerTarget.stopVideo();
+                    dmplayer.pause();
+                } catch (e) {
+
+                }
 
                 Defaults.videoOptions.videoIndex = $(this).index();
                 finalSetup.ID = $(this).find('input[name=url]').val(),
@@ -288,15 +294,15 @@ var VideoMux = (function(w, $) {
                 }
 
                 $('.content').removeClass('current').eq(Defaults.videoOptions.videoIndex).addClass('current');
-            })
+            });
 
         },
 
         initYT: function (obj) {
             var element = Defaults.youTube.elem;
 
-            $('#' + element).removeClass('disable');
-            $('#' + Defaults.dailyMotion.elem).addClass('disable');
+            $('#youtube').removeClass('disable');
+            $('#daily-motion').addClass('disable');
 
             var setup = {};
 
@@ -307,22 +313,22 @@ var VideoMux = (function(w, $) {
                 setup.endSeconds = obj.stop;
             }
 
-            ytplayerTarget.loadVideoById(setup);
+            w.ytplayerTarget.loadVideoById(setup);
         },
 
         initDM: function(obj) {
             var self = this,
                 element = (obj.elem || Defaults.dailyMotion.elem);
 
-            $('#YT_player').addClass('disable');
-            $('#' + element).removeClass('disable');
+            $('#youtube').addClass('disable');
+            $('#daily-motion').removeClass('disable');
 
             DM.init({
                 apiKey: Defaults.dailyMotion.apiKey
 
             });
 
-            var player = DM.player(element, {
+            var dmplayer = DM.player(element, {
                 video: obj.ID,
                 width: obj.width,
                 height: obj.height,
@@ -332,14 +338,14 @@ var VideoMux = (function(w, $) {
                 }
             }), playIterator = 0, stopTime = obj.stop, startTime = obj.start;
 
-            $(player).on('apiready seeking timeupdate seeked play pause', function(e) {
-                var player = e.target,
-                    currentTime = parseInt(player.currentTime) + 1;
+            $(dmplayer).on('apiready seeking timeupdate seeked play pause', function(e) {
+                var dmplayer = e.target,
+                    currentTime = parseInt(dmplayer.currentTime) + 1;
 
                 switch ( e.type ) {
                     case 'play':
                     case 'apiready':
-                        player.play();
+                        dmplayer.play();
                         if (playIterator == 0) {
                             e.target.seek(startTime);
                         }
@@ -350,7 +356,7 @@ var VideoMux = (function(w, $) {
                     case 'seeked':
                         if ( stopTime !== -1 && stopTime > 0 ) {
                             if ( currentTime >= stopTime ) {
-                                player.pause();
+                                dmplayer.pause();
                             }
                         }
                         playIterator = 1;
