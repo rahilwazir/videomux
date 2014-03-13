@@ -131,11 +131,11 @@ var VideoMux = (function(w, $) {
                                 videoData[_i] = vidID; _i++;
 
                             } else {
-                                $('input[name=' + x.name + ']').addClass('error');
+                                $('input[name=' + x.name + ']').addClass('error').focus();
                             }
 
                         } else {
-                            if ( e == 0 ) $('input[name=' + x.name + ']').addClass('error');
+                            if ( e == 0 ) $('input[name=' + x.name + ']').addClass('error').focus();
                         }
                     }
 
@@ -150,7 +150,7 @@ var VideoMux = (function(w, $) {
 
                                 $('input[name=' + x.name + ']').removeClass('error');
                             } else {
-                                $('input[name=' + x.name + ']').addClass('error');
+                                $('input[name=' + x.name + ']').addClass('error').focus();
                                 startTimeData[_x] = 0;
                             }
                         } else {
@@ -171,12 +171,12 @@ var VideoMux = (function(w, $) {
                                     EndTime = endTime,
                                     endTimeData[_y] = x.value;
                                 } else {
-                                    $('input[name=' + startTimeInput + ']').addClass('error');
+                                    $('input[name=' + startTimeInput + ']').addClass('error').focus();
                                     endTimeData[_y] = 0;
                                 }
 
                             } else {
-                                $('input[name=' + x.name + ']').addClass('error');
+                                $('input[name=' + x.name + ']').addClass('error').focus();
                                 endTimeData[_y] = 0;
                             }
                         } else {
@@ -197,87 +197,91 @@ var VideoMux = (function(w, $) {
                     }
                 }
 
-                // get video meta data
-                $.ajax({
-                    type: 'post',
-                    url: 'src/RW/apicall.php',
-                    data: {
-                        ytvideoIds: ytVideos || '',
-                        dmvideoIds: dmVideos || ''
-                    },
-                    beforeSend: function () {
-                        $('.preloader').removeClass('disable');
-                        $('.video-context').children(':not(.preloader)').addClass('disable');
-                    },
-                    success: function (data) {
-                        if (data){
-                            try {
-                                var result = JSON.parse(data),
-                                    youtubeData = result.youtube,
-                                    dailymotionData = result.dailymotion,
-                                    yti = 0,
-                                    dmi = 0;
+                var errorsPlaced = $(this).find('.error');
 
-                                // compiling videos
-                                $.each(videoData, function (e, x) {
-                                    var _index = parseInt(e, 10);
+                if (errorsPlaced.length < 1) {
+                    // get video meta data
+                    $.ajax({
+                        type: 'post',
+                        url: 'src/RW/apicall.php',
+                        data: {
+                            ytvideoIds: ytVideos || '',
+                            dmvideoIds: dmVideos || ''
+                        },
+                        beforeSend: function () {
+                            $('.preloader').removeClass('disable');
+                            $('.video-context').children(':not(.preloader)').addClass('disable');
+                        },
+                        success: function (data) {
+                            if (data){
+                                try {
+                                    var result = JSON.parse(data),
+                                        youtubeData = result.youtube,
+                                        dailymotionData = result.dailymotion,
+                                        yti = 0,
+                                        dmi = 0;
 
-                                    if ( _index === 0 ) {
-                                        $('.right-side').empty();
+                                    // compiling videos
+                                    $.each(videoData, function (e, x) {
+                                        var _index = parseInt(e, 10);
 
-                                        finalSetup.ID = x,
-                                            finalSetup.start = startTimeData[_index],
-                                            finalSetup.stop = endTimeData[_index];
+                                        if ( _index === 0 ) {
+                                            $('.right-side').empty();
 
-                                        if ( x.length === 11 ) {
-                                            self.initYT(finalSetup);
-                                        } else if ( x.indexOf('x') === 0 ) {
-                                            self.initDM(finalSetup);
+                                            finalSetup.ID = x,
+                                                finalSetup.start = startTimeData[_index],
+                                                finalSetup.stop = endTimeData[_index];
+
+                                            if ( x.length === 11 ) {
+                                                self.initYT(finalSetup);
+                                            } else if ( x.indexOf('x') === 0 ) {
+                                                self.initDM(finalSetup);
+                                            }
                                         }
-                                    }
 
-                                    var output = '';
+                                        var output = '';
 
-                                    if (x.length === 11 && youtubeData[yti] ) {
-                                        output += '<a href="#" class="content' + ((_index === 0) ? ' current' : '') + ' clearfix">';
-                                        output += '<div class="thumbnail"><img src="'+ youtubeData[yti].thumbnail + '" alt="' + youtubeData[yti].title + '"/>' +
-                                            '<span class="duration">' + youtubeData[yti].duration + '</span></span></div>';
-                                        output += '<div class="fright video-details"><h3>' + youtubeData[yti].title + '</h3>';
-                                        output += '<span>' + youtubeData[yti].views + '</span>';
-                                        output += '<span>' + youtubeData[yti].published_on + '</span></div>';
-                                        output += '<input type="hidden" name="url" value="' + x + '">';
-                                        output += '<input type="hidden" name="start" value="' + (startTimeData[_index] || '') + '">';
-                                        output += '<input type="hidden" name="end" value="' + (endTimeData[_index] || '') + '">';
-                                        output += '</a>';
-                                        yti++;
-                                    } else if (x.indexOf('x') === 0 && dailymotionData[dmi]) {
-                                        output += '<a href="#" class="content' + ((_index === 0) ? ' current' : '') + ' clearfix">';
-                                        output += '<div class="thumbnail"><img src="'+ dailymotionData[dmi].thumbnail + '" alt="' + dailymotionData[dmi].title + '"/>' +
-                                            '<span class="duration">' + dailymotionData[dmi].duration + '</span></span></div>';
-                                        output += '<div class="fright video-details"><h3>' + dailymotionData[dmi].title + '</h3>';
-                                        output += '<span>' + dailymotionData[dmi].views + '</span>';
-                                        output += '<span>' + dailymotionData[dmi].published_on + '</span></div>';
-                                        output += '<input type="hidden" name="url" value="' + x + '">';
-                                        output += '<input type="hidden" name="start" value="' + (startTimeData[_index] || '') + '">';
-                                        output += '<input type="hidden" name="end" value="' + (endTimeData[_index] || '') + '">';
-                                        output += '</a>';
-                                        dmi++;
-                                    }
+                                        if (x.length === 11 && youtubeData[yti] ) {
+                                            output += '<a href="#" class="content' + ((_index === 0) ? ' current' : '') + ' clearfix">';
+                                            output += '<div class="thumbnail"><img src="'+ youtubeData[yti].thumbnail + '" alt="' + youtubeData[yti].title + '"/>' +
+                                                '<span class="duration">' + youtubeData[yti].duration + '</span></span></div>';
+                                            output += '<div class="fright video-details"><h3>' + youtubeData[yti].title + '</h3>';
+                                            output += '<span>' + youtubeData[yti].views + '</span>';
+                                            output += '<span>' + youtubeData[yti].published_on + '</span></div>';
+                                            output += '<input type="hidden" name="url" value="' + x + '">';
+                                            output += '<input type="hidden" name="start" value="' + (startTimeData[_index] || '') + '">';
+                                            output += '<input type="hidden" name="end" value="' + (endTimeData[_index] || '') + '">';
+                                            output += '</a>';
+                                            yti++;
+                                        } else if (x.indexOf('x') === 0 && dailymotionData[dmi]) {
+                                            output += '<a href="#" class="content' + ((_index === 0) ? ' current' : '') + ' clearfix">';
+                                            output += '<div class="thumbnail"><img src="'+ dailymotionData[dmi].thumbnail + '" alt="' + dailymotionData[dmi].title + '"/>' +
+                                                '<span class="duration">' + dailymotionData[dmi].duration + '</span></span></div>';
+                                            output += '<div class="fright video-details"><h3>' + dailymotionData[dmi].title + '</h3>';
+                                            output += '<span>' + dailymotionData[dmi].views + '</span>';
+                                            output += '<span>' + dailymotionData[dmi].published_on + '</span></div>';
+                                            output += '<input type="hidden" name="url" value="' + x + '">';
+                                            output += '<input type="hidden" name="start" value="' + (startTimeData[_index] || '') + '">';
+                                            output += '<input type="hidden" name="end" value="' + (endTimeData[_index] || '') + '">';
+                                            output += '</a>';
+                                            dmi++;
+                                        }
 
-                                    $('.right-side').append(output);
-                                });
+                                        $('.right-side').append(output);
+                                    });
 
-                            } catch(e) {
-                                console.log(e + ', Please try again.'); //error in the above string(in this case,yes)!
+                                } catch(e) {
+                                    console.log(e + ', Please try again.'); //error in the above string(in this case,yes)!
+                                }
+
+                                Defaults.videoOptions.totalVideosLength = $('.right-side .content').length - 1;
+
+                                $('.video-context').children().removeClass('disable').addClass('enable');
+                                $('.preloader').removeClass('enable').addClass('disable');
                             }
-
-                            Defaults.videoOptions.totalVideosLength = $('.right-side .content').length - 1;
-
-                            $('.video-context').children().removeClass('disable').addClass('enable');
-                            $('.preloader').removeClass('enable').addClass('disable');
                         }
-                    }
-                }); // end of ajax
+                    }); // end of ajax
+                }
             });
 
             $(document).on('click', '.content', function(e) {
@@ -304,7 +308,6 @@ var VideoMux = (function(w, $) {
 
                 $('.content').removeClass('current').eq(Defaults.videoOptions.videoIndex).addClass('current');
             });
-
         },
 
         initYT: function (obj) {
@@ -316,7 +319,7 @@ var VideoMux = (function(w, $) {
             setup.videoId = obj.ID,
             setup.startSeconds = (obj.start || 0);
 
-            if ( obj.stop > obj.start ) {
+            if ( obj.stop ) {
                 setup.endSeconds = obj.stop;
             }
 
