@@ -260,7 +260,7 @@ var VideoMux = (function(w, $) {
                                         var output = '';
 
                                         if (x.length === 11 && youtubeData[yti] ) {
-                                            output += '<a href="#" class="content' + ((_index === 0) ? ' current' : '') + ' clearfix">';
+                                            output += '<div class="content' + ((_index === 0) ? ' current' : '') + ' clearfix">';
                                             output += '<div class="thumbnail"><img src="'+ youtubeData[yti].thumbnail + '" alt="' + youtubeData[yti].title + '"/>' +
                                                 '<span class="duration">' + youtubeData[yti].duration + '</span></span></div>';
                                             output += '<div class="fright video-details"><h3>' + youtubeData[yti].title + '</h3>';
@@ -270,10 +270,10 @@ var VideoMux = (function(w, $) {
                                             output += '<input type="hidden" name="start" value="' + (startTimeData[_index] || '') + '">';
                                             output += '<input type="hidden" name="end" value="' + (endTimeData[_index] || '') + '">';
                                             output += '<a href="' + fullURIs[_index] + '" target="_blank" class="full-video">Full Video</a>';
-                                            output += '</a>';
+                                            output += '</div>';
                                             yti++;
                                         } else if (x.indexOf('x') === 0 && dailymotionData[dmi]) {
-                                            output += '<a href="#" class="content' + ((_index === 0) ? ' current' : '') + ' clearfix">';
+                                            output += '<div class="content' + ((_index === 0) ? ' current' : '') + ' clearfix">';
                                             output += '<div class="thumbnail"><img src="'+ dailymotionData[dmi].thumbnail + '" alt="' + dailymotionData[dmi].title + '"/>' +
                                                 '<span class="duration">' + dailymotionData[dmi].duration + '</span></span></div>';
                                             output += '<div class="fright video-details"><h3>' + dailymotionData[dmi].title + '</h3>';
@@ -283,7 +283,7 @@ var VideoMux = (function(w, $) {
                                             output += '<input type="hidden" name="start" value="' + (startTimeData[_index] || '') + '">';
                                             output += '<input type="hidden" name="end" value="' + (endTimeData[_index] || '') + '">';
                                             output += '<a href="' + fullURIs[_index] + '" target="_blank" class="full-video">Full Video</a>';
-                                            output += '</a>';
+                                            output += '</div>';
                                             dmi++;
                                         }
 
@@ -324,7 +324,7 @@ var VideoMux = (function(w, $) {
             });
 
             $(document).on('click', '.full-video', function(e) {
-                self.utils.pauseVideos();
+                e.stopPropagation(); self.utils.pauseVideos();
             });
         },
 

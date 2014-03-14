@@ -197,6 +197,7 @@ body{
     border-radius: 8px;
     border-width: 3px medium medium;
     text-align: center;
+    width: 100%;
 }
 .end-time p{
     color:#FFFFFF;
@@ -215,6 +216,7 @@ body{
     border: 0;
     border-radius: 8px;
     text-align: center;
+    width: 100%;
 }
 .video-context .left-side{
     float: left;
@@ -228,6 +230,7 @@ body{
 .video-context .right-side .content {
     padding: 5px;
     display: block;
+    cursor: pointer;
 }
 .video-context .right-side .content.current {
     border: 1px solid #FFF;
