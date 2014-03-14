@@ -1,18 +1,10 @@
 @charset "utf-8";
 /* CSS Document */
 
-html, body, div, span, object, iframe,
-h1, h2, h3, h4, h5, h6, p, blockquote, pre,
-abbr, address, cite, code,
-del, dfn, em, img, ins, kbd, q, samp,
-small, strong, sub, sup, var,
-b, i,
-dl, dt, dd, ol, ul, li,
-fieldset, form, label, legend,
-table, caption, tbody, tfoot, thead, tr, th, td,
-article, aside, canvas, details, figcaption, figure,
-footer, header, hgroup, menu, nav, section, summary,
-time, mark, audio, video {
+* {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
     margin:0;
     padding:0;
     border:0;
@@ -21,6 +13,7 @@ time, mark, audio, video {
     vertical-align:baseline;
     background:transparent;
 }
+
 body {
     line-height:1;
 }
@@ -375,4 +368,14 @@ body{
     right: 0;
     bottom: 0;
     background: url('../images/preloader.gif') no-repeat 50% 50% transparent;
+}
+.full-video {
+    float: right;
+    font-size: 9pt;
+    color: #FFF;
+    padding: 2px;
+}
+.full-video:hover {
+    background: #FFFFFF;
+    color: #000000;
 }

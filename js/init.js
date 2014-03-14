@@ -92,6 +92,20 @@ var VideoMux = (function(w, $) {
             extract_DM_ID: function getDailyMotionId(value) {
                 var m = value.match(/^.+dailymotion.com\/((video|hub)\/([^_]+))?[^#]*(#video=([^_&]+))?/);
                 return m ? m[5] || m[3] : false;
+            },
+
+            pauseVideos: function () {
+                try {
+                    if (w.ytplayerTarget) {
+                        w.ytplayerTarget.pauseVideo();
+                    }
+
+                    if (w.dmplayer) {
+                        w.dmplayer.pause();
+                    }
+                } catch (e) {
+                    console.log(e);
+                }
             }
         },
 
@@ -106,17 +120,12 @@ var VideoMux = (function(w, $) {
             $(document).on('submit', 'form[name="video-inputs"]', function (e) {
                 e.preventDefault();
 
-                try {
-                    if (w.ytplayerTarget) w.ytplayerTarget.stopVideo(); w.ytplayerTarget.clearVideo();
-                    if (w.dmplayer) w.dmplayer.pause();
-                } catch (e) {
-
-                }
+                self.utils.pauseVideos();
 
                 var data = $(this).serializeArray(),
                     vidID, StartTime, EndTime, startTimeInput, endTimeInput,
                     videoData = {}, startTimeData = {}, endTimeData = {},
-                    _i = 0, _x = 0, _y = 0;
+                    _i = 0, _x = 0, _y = 0, fullURIs = [];
 
                 // collecting videos
                 $.each(data, function (e, x) {
@@ -128,6 +137,9 @@ var VideoMux = (function(w, $) {
                             var DM_ID = self.utils.extract_DM_ID(x.value);
 
                             if ( YT_ID || DM_ID ) {
+
+                                fullURIs.push(x.value);
+
                                 $('input[name=' + x.name + ']').removeClass('error');
 
                                 if ( YT_ID ) vidID = YT_ID;
@@ -257,6 +269,7 @@ var VideoMux = (function(w, $) {
                                             output += '<input type="hidden" name="url" value="' + x + '">';
                                             output += '<input type="hidden" name="start" value="' + (startTimeData[_index] || '') + '">';
                                             output += '<input type="hidden" name="end" value="' + (endTimeData[_index] || '') + '">';
+                                            output += '<a href="' + fullURIs[_index] + '" target="_blank" class="full-video">Full Video</a>';
                                             output += '</a>';
                                             yti++;
                                         } else if (x.indexOf('x') === 0 && dailymotionData[dmi]) {
@@ -269,6 +282,7 @@ var VideoMux = (function(w, $) {
                                             output += '<input type="hidden" name="url" value="' + x + '">';
                                             output += '<input type="hidden" name="start" value="' + (startTimeData[_index] || '') + '">';
                                             output += '<input type="hidden" name="end" value="' + (endTimeData[_index] || '') + '">';
+                                            output += '<a href="' + fullURIs[_index] + '" target="_blank" class="full-video">Full Video</a>';
                                             output += '</a>';
                                             dmi++;
                                         }
@@ -293,13 +307,7 @@ var VideoMux = (function(w, $) {
             $(document).on('click', '.content', function(e) {
                 e.preventDefault();
 
-                try {
-                    w.ytplayerTarget.stopVideo();
-                    w.ytplayerTarget.clearVideo();
-                    w.dmplayer.pause();
-                } catch (e) {
-
-                }
+                self.utils.pauseVideos();
 
                 Defaults.videoOptions.videoIndex = $(this).index();
                 finalSetup.ID = $(this).find('input[name=url]').val(),
@@ -313,6 +321,10 @@ var VideoMux = (function(w, $) {
                 }
 
                 $('.content').removeClass('current').eq(Defaults.videoOptions.videoIndex).addClass('current');
+            });
+
+            $(document).on('click', '.full-video', function(e) {
+                self.utils.pauseVideos();
             });
         },
 
