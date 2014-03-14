@@ -46,6 +46,13 @@ var VideoMux = (function(w, $) {
 
     w.loadVideo = function(e) {
         w.ytplayerTarget = e.target;
+
+        var cSource = $('#YT_player').attr('src');
+
+        if (cSource.indexOf('&wmode=transparent') === -1) {
+            $('#YT_player').attr('src', cSource + '&wmode=transparent' )
+        }
+
         $(document).find('#youtube').addClass('disable');
     };
 
@@ -64,7 +71,7 @@ var VideoMux = (function(w, $) {
 
         switch (ytplayerTargetData.data) {
             case 0:
-                triggerNextVideo();
+                w.triggerNextVideo();
                 break;
             default:
                 break;
@@ -100,9 +107,8 @@ var VideoMux = (function(w, $) {
                 e.preventDefault();
 
                 try {
-                    w.ytplayerTarget.stopVideo();
-                    w.ytplayerTarget.clearVideo();
-                    w.dmplayer.pause();
+                    if (w.ytplayerTarget) w.ytplayerTarget.stopVideo(); w.ytplayerTarget.clearVideo();
+                    if (w.dmplayer) w.dmplayer.pause();
                 } catch (e) {
 
                 }
@@ -271,7 +277,7 @@ var VideoMux = (function(w, $) {
                                     });
 
                                 } catch(e) {
-                                    console.log(e + ', Please try again.'); //error in the above string(in this case,yes)!
+                                    console.log(e + ', Please try again.');
                                 }
 
                                 Defaults.videoOptions.totalVideosLength = $('.right-side .content').length - 1;
@@ -311,9 +317,6 @@ var VideoMux = (function(w, $) {
         },
 
         initYT: function (obj) {
-            $('#youtube').removeClass('disable');
-            $('#daily-motion').addClass('disable');
-
             var setup = {};
 
             setup.videoId = obj.ID,
@@ -324,18 +327,18 @@ var VideoMux = (function(w, $) {
             }
 
             w.ytplayerTarget.loadVideoById(setup);
+            w.ytplayerTarget.setPlaybackQuality('highres');
+
+            $('#youtube').removeClass('disable');
+            $('#daily-motion').addClass('disable');
         },
 
         initDM: function(obj) {
             var self = this,
                 element = (obj.elem || Defaults.dailyMotion.elem);
 
-            $('#youtube').addClass('disable');
-            $('#daily-motion').removeClass('disable');
-
             DM.init({
                 apiKey: Defaults.dailyMotion.apiKey
-
             });
 
             w.dmplayer = DM.player(element, {
@@ -344,7 +347,8 @@ var VideoMux = (function(w, $) {
                 height: obj.height,
                 params: {
                     autplay: 1,
-                    html: 0
+                    html: 0,
+                    quality: 1080
                 }
             }), playIterator = 0, stopTime = obj.stop, startTime = obj.start;
 
@@ -367,16 +371,18 @@ var VideoMux = (function(w, $) {
                         if ( stopTime !== -1 && stopTime > 0 ) {
                             if ( currentTime >= stopTime ) {
                                 dmplayer.pause();
+                                triggerNextVideo();
                             }
                         }
                         playIterator = 1;
                         break;
-                    case 'pause':
-                        triggerNextVideo();
                     default:
                         break;
                 }
             });
+
+            $('#youtube').addClass('disable');
+            $('#daily-motion').removeClass('disable');
         }
     };
 

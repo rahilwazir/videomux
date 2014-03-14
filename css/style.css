@@ -141,6 +141,7 @@ body{
     text-align: left;
     width: 76%;
     border-color: #021223;
+    color: #FFFFFF;
 }
 .search_bg .search_btn {
     -moz-border-bottom-colors: none;
@@ -158,6 +159,7 @@ body{
     margin: 0;
     padding: 11px;
     width: 15%;
+    text-indent: -9999em;
 }
 .form-time{
     margin: 15px 0;
