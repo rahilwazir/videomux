@@ -21,7 +21,8 @@ function onYouTubeIframeAPIReady() {
         width: VideoMux.Defaults.videoOptions.mainWidth,
         height: VideoMux.Defaults.videoOptions.mainHeight,
         playerVars: {
-            autoplay: 1
+            autoplay: 1,
+            wmode: 'transparent'
         },
         events: {
             'onReady': loadVideo,
@@ -45,12 +46,6 @@ function onPlayerStateChange(event) {
 
 function loadVideo(e) {
     ytplayerTarget = e.target;
-
-    var cSource = $('#' + VideoMux.Defaults.youTube.elem).attr('src');
-
-    if (cSource.indexOf('&wmode=transparent') === -1) {
-        //$('#' + VideoMux.Defaults.youTube.elem).attr('src', cSource + '&wmode=transparent' )
-    }
 
     $(document).find('#youtube').addClass('disable');
 }
